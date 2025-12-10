@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"echo $env:USERPROFILE\")",
+      "Bash(powershell -Command \"[Environment]::GetFolderPath(''UserProfile'')\")",
+      "Bash(powershell -Command:*)",
+      "Bash(npx -y figma-developer-mcp:*)",
+      "Bash(Select-Object -First 100)",
+      "Bash(Out-File -FilePath 'C:\\Users\\marcu\\fiscalwallet\\figma_frames_data.json' -Encoding UTF8)",
+      "Bash(npm run build:*)",
+      "Bash(npx -y figma-developer-mcp@latest get_file:*)",
+      "Bash(npx:*)",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

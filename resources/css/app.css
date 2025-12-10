@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+    html {
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+        @apply bg-background text-gray-900 antialiased;
+    }
+}
+
+@layer components {
+    /* Card base */
+    .card {
+        @apply bg-surface rounded-lg shadow-card border border-gray-100 p-6;
+    }
+
+    .card-elevated {
+        @apply bg-surface rounded-lg shadow-elevated border border-gray-100 p-6;
+    }
+
+    /* Button variants */
+    .btn {
+        @apply inline-flex items-center justify-center font-medium rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-primary {
+        @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    }
+
+    .btn-secondary {
+        @apply btn border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500;
+    }
+
+    .btn-neutral {
+        @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500;
+    }
+
+    .btn-danger {
+        @apply btn bg-danger-500 text-white hover:bg-danger-600 focus:ring-danger-500;
+    }
+
+    .btn-success {
+        @apply btn bg-success-500 text-white hover:bg-success-600 focus:ring-success-500;
+    }
+
+    /* Button sizes */
+    .btn-xl {
+        @apply h-14 px-8 text-lg;
+    }
+
+    .btn-lg {
+        @apply h-12 px-6 text-base;
+    }
+
+    .btn-md {
+        @apply h-10 px-4 text-sm;
+    }
+
+    .btn-sm {
+        @apply h-8 px-3 text-xs;
+    }
+
+    /* Input base */
+    .input {
+        @apply w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900 placeholder-gray-400 transition-colors duration-200;
+        @apply focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:bg-white;
+    }
+
+    .input-error {
+        @apply border-danger-500 focus:border-danger-500 focus:ring-danger-100;
+    }
+
+    /* Badge variants */
+    .badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    }
+
+    .badge-success {
+        @apply bg-success-100 text-success-700;
+    }
+
+    .badge-danger {
+        @apply bg-danger-100 text-danger-700;
+    }
+
+    .badge-warning {
+        @apply bg-warning-100 text-warning-700;
+    }
+
+    .badge-primary {
+        @apply bg-primary-100 text-primary-700;
+    }
+
+    .badge-neutral {
+        @apply bg-gray-100 text-gray-700;
+    }
+
+    /* Table */
+    .table-header {
+        @apply bg-gray-50 border-b border-gray-200;
+    }
+
+    .table-header-cell {
+        @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    }
+
+    .table-row {
+        @apply border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150;
+    }
+
+    .table-cell {
+        @apply px-4 py-4 text-sm text-gray-900;
+    }
+
+    /* Sidebar */
+    .sidebar-item {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-sidebar-hover transition-colors duration-200;
+    }
+
+    .sidebar-item-active {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary-50 text-primary-600 font-medium;
+    }
+
+    /* Metric card */
+    .metric-card {
+        @apply card flex flex-col gap-2;
+    }
+
+    .metric-card-primary {
+        @apply rounded-lg p-6 bg-gradient-to-r from-primary-600 to-primary-500 text-white;
+    }
+}
+
+@layer utilities {
+    /* Custom scrollbar */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #DDD8E1 transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: #DDD8E1;
+        border-radius: 3px;
+    }
+
+    /* Hide scrollbar but allow scrolling */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}
