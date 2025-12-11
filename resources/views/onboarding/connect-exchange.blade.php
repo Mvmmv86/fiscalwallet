@@ -59,7 +59,7 @@
         <div class="flex justify-end w-full max-w-md">
             <a
                 :href="importType === 'automatic' ? '{{ route('onboarding.import-automatic', ['exchange' => $exchange]) }}' : '{{ route('onboarding.import-manual', ['exchange' => $exchange]) }}'"
-                class="inline-flex items-center justify-center font-medium rounded-full px-6 py-2 text-sm bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                class="inline-flex items-center justify-center font-medium rounded-full px-6 py-2 text-sm bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
             >
                 Continuar
             </a>

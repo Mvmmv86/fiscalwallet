@@ -130,7 +130,7 @@
                 x-transition:enter-start="opacity-0 transform scale-95"
                 x-transition:enter-end="opacity-100 transform scale-100"
                 :href="`{{ url('onboarding/connect') }}/` + selectedExchange"
-                class="inline-flex items-center justify-center font-medium rounded-full px-6 py-2 text-sm bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                class="inline-flex items-center justify-center font-medium rounded-full px-6 py-2 text-sm bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
             >
                 Continuar
             </a>

@@ -90,7 +90,7 @@
         <div class="flex items-center justify-end gap-3 mb-4">
             <button
                 @click="openModal()"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors whitespace-nowrap"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm whitespace-nowrap"
             >
                 Adicionar carteira
             </button>
@@ -317,7 +317,7 @@
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 transform scale-95"
                         x-transition:enter-end="opacity-100 transform scale-100"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Continuar
                     </button>
@@ -409,7 +409,7 @@
                     <button
                         type="button"
                         @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Continuar
                     </button>
@@ -484,7 +484,7 @@
                     <button
                         type="button"
                         @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Importar
                     </button>
@@ -557,7 +557,7 @@
                     <button
                         type="button"
                         @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Importar
                     </button>
@@ -596,7 +596,7 @@
                     <button
                         type="button"
                         @click="closeModal()"
-                        class="w-full px-6 py-3 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors"
+                        class="w-full px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Entendi
                     </button>

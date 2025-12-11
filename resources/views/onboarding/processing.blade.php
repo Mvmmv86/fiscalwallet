@@ -38,7 +38,7 @@
                 </p>
 
                 <!-- Botão Ir para Home -->
-                <a href="{{ route('dashboard') }}" class="w-full px-6 py-3 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors text-center">
+                <a href="{{ route('dashboard') }}" class="w-full px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm text-center">
                     Ir para Home
                 </a>
             </div>

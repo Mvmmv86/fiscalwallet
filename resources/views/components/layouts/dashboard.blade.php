@@ -85,30 +85,39 @@
                 </a>
 
                 <a
-                    href="#"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                    href="{{ route('operacoes') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('operacoes') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }} transition-colors"
                     :class="sidebarOpen ? '' : 'justify-center'"
                 >
                     <x-icons.list class="w-5 h-5 flex-shrink-0" />
-                    <span :class="sidebarOpen ? '' : 'hidden'">Operacoes</span>
+                    <span :class="sidebarOpen ? '' : 'hidden'">Operações</span>
                 </a>
 
                 <a
-                    href="#"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                    href="{{ route('relatorios') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('relatorios') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }} transition-colors"
                     :class="sidebarOpen ? '' : 'justify-center'"
                 >
                     <x-icons.chart class="w-5 h-5 flex-shrink-0" />
-                    <span :class="sidebarOpen ? '' : 'hidden'">Relatorios</span>
+                    <span :class="sidebarOpen ? '' : 'hidden'">Relatórios</span>
                 </a>
 
                 <a
-                    href="#"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                    href="{{ route('declaracoes') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('declaracoes') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }} transition-colors"
                     :class="sidebarOpen ? '' : 'justify-center'"
                 >
                     <x-icons.file-text class="w-5 h-5 flex-shrink-0" />
-                    <span :class="sidebarOpen ? '' : 'hidden'">Declaracoes</span>
+                    <span :class="sidebarOpen ? '' : 'hidden'">Declarações</span>
+                </a>
+
+                <a
+                    href="{{ route('pendencias') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('pendencias') ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }} transition-colors"
+                    :class="sidebarOpen ? '' : 'justify-center'"
+                >
+                    <x-icons.alert-triangle class="w-5 h-5 flex-shrink-0" />
+                    <span :class="sidebarOpen ? '' : 'hidden'">Pendências</span>
                 </a>
             </nav>
         </aside>
@@ -154,6 +163,9 @@
             </main>
         </div>
     </div>
+
+    {{-- Chatbot Global --}}
+    <x-ui.chatbot />
 
     @livewireScripts
 </body>

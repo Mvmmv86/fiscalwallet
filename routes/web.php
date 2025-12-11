@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +32,20 @@ Route::get('/carteiras', function () {
 })->name('carteiras');
 
 Route::get('/operacoes', function () {
-    return redirect()->route('components.preview');
+    return view('operacoes');
 })->name('operacoes');
 
+Route::get('/relatorios', function () {
+    return view('relatorios');
+})->name('relatorios');
+
 Route::get('/declaracoes', function () {
-    return redirect()->route('components.preview');
+    return view('declaracoes');
 })->name('declaracoes');
+
+Route::get('/pendencias', function () {
+    return view('pendencias');
+})->name('pendencias');
 
 // Auth Routes
 Route::get('/login', function () {
@@ -91,3 +100,10 @@ Route::get('/onboarding/import-manual/{exchange}', function ($exchange) {
 Route::get('/onboarding/processing/{exchange?}', function ($exchange = null) {
     return view('onboarding.processing', ['exchange' => $exchange]);
 })->name('onboarding.processing');
+
+// Report Routes
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/darf/{mes}/{ano}', [ReportController::class, 'darf'])->name('darf');
+    Route::get('/mensal/{mes}/{ano}', [ReportController::class, 'relatorioMensal'])->name('mensal');
+    Route::get('/irpf/{ano}', [ReportController::class, 'irpfExport'])->name('irpf');
+});
