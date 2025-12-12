@@ -140,19 +140,94 @@
                         <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
                     </button>
 
-                    <!-- User Profile -->
-                    <div class="flex items-center gap-2" x-data="{ open: false }">
-                        <img
-                            src="https://ui-avatars.com/api/?name=Alonso+Rodrigues&background=9333EA&color=fff&size=32"
-                            alt="Avatar"
-                            class="w-8 h-8 rounded-full"
-                        />
-                        <div class="text-xs">
-                            <p class="font-medium text-gray-900">Alonso Rodrigues</p>
-                        </div>
-                        <button @click="open = !open" class="p-0.5 rounded hover:bg-gray-100">
-                            <x-icons.chevron-down class="w-3 h-3 text-gray-500" />
+                    <!-- User Profile Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button
+                            @click="open = !open"
+                            class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            <img
+                                src="https://ui-avatars.com/api/?name=Alonso+Rodrigues&background=9333EA&color=fff&size=32"
+                                alt="Avatar"
+                                class="w-8 h-8 rounded-full"
+                            />
+                            <div class="text-xs text-left">
+                                <p class="font-medium text-gray-900">Alonso Rodrigues</p>
+                                <p class="text-gray-500">Plano Pro</p>
+                            </div>
+                            <svg
+                                class="w-3 h-3 text-gray-500 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </button>
+
+                        <!-- Dropdown Menu -->
+                        <div
+                            x-show="open"
+                            @click.away="open = false"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                            style="display: none;"
+                        >
+                            <!-- User Info -->
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm font-medium text-gray-900">Alonso Rodrigues</p>
+                                <p class="text-xs text-gray-500">alonso.rodrigues@email.com</p>
+                            </div>
+
+                            <!-- Menu Items -->
+                            <div class="py-1">
+                                <a
+                                    href="{{ route('perfil') }}"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    <x-icons.user class="w-4 h-4 text-gray-500" />
+                                    Meu Perfil
+                                </a>
+                                <a
+                                    href="{{ route('perfil.planos') }}"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    <x-icons.credit-card class="w-4 h-4 text-gray-500" />
+                                    Planos e Assinatura
+                                </a>
+                                <a
+                                    href="{{ route('perfil') }}?tab=seguranca"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    <x-icons.shield class="w-4 h-4 text-gray-500" />
+                                    Segurança
+                                </a>
+                                <a
+                                    href="{{ route('perfil') }}?tab=notificacoes"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    <x-icons.bell class="w-4 h-4 text-gray-500" />
+                                    Notificações
+                                </a>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="border-t border-gray-100 pt-1">
+                                <a
+                                    href="{{ route('login') }}"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
+                                >
+                                    <x-icons.logout class="w-4 h-4" />
+                                    Sair
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>

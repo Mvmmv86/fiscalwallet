@@ -47,6 +47,15 @@ Route::get('/pendencias', function () {
     return view('pendencias');
 })->name('pendencias');
 
+// Perfil Routes
+Route::get('/perfil', function () {
+    return view('perfil.index');
+})->name('perfil');
+
+Route::get('/perfil/planos', function () {
+    return view('perfil.planos');
+})->name('perfil.planos');
+
 // Auth Routes
 Route::get('/login', function () {
     return view('auth.login');
