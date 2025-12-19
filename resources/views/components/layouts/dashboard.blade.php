@@ -19,8 +19,6 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    @livewireStyles
-
     <style>
         [x-cloak] { display: none !important; }
         .sidebar-transition {
@@ -124,8 +122,8 @@
 
         <!-- Main Content -->
         <div
-            class="min-h-screen transition-all duration-300 ease-in-out"
-            x-bind:style="'margin-left: ' + (sidebarOpen ? '192px' : '72px')"
+            class="min-h-screen transition-all duration-300 ease-in-out ml-[180px]"
+            x-bind:class="sidebarOpen ? 'ml-[180px]' : 'ml-[60px]'"
         >
             <!-- Top Header -->
             <header class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
@@ -219,13 +217,16 @@
 
                             <!-- Logout -->
                             <div class="border-t border-gray-100 pt-1">
-                                <a
-                                    href="{{ route('login') }}"
-                                    class="flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
-                                >
-                                    <x-icons.logout class="w-4 h-4" />
-                                    Sair
-                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button
+                                        type="submit"
+                                        class="w-full flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
+                                    >
+                                        <x-icons.logout class="w-4 h-4" />
+                                        Sair
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -241,7 +242,5 @@
 
     {{-- Chatbot Global --}}
     <x-ui.chatbot />
-
-    @livewireScripts
 </body>
 </html>

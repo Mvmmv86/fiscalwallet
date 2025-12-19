@@ -7,34 +7,17 @@
         showCancelModal: false,
         plans: [
             {
-                id: 'free',
-                name: 'Free',
-                description: 'Para quem está começando',
-                priceMonthly: 0,
-                priceYearly: 0,
-                features: [
-                    '50 operações/mês',
-                    '1 carteira conectada',
-                    'Dashboard básico',
-                    'Suporte por email'
-                ],
-                limitations: [
-                    'Sem relatórios fiscais',
-                    'Sem exportação',
-                    'Sem suporte prioritário'
-                ]
-            },
-            {
                 id: 'starter',
                 name: 'Starter',
-                description: 'Para investidores casuais',
-                priceMonthly: 29,
-                priceYearly: 290,
+                description: 'Para investidores iniciantes',
+                priceMonthly: 299,
+                priceYearly: 2990,
                 popular: false,
                 features: [
-                    '500 operações/mês',
+                    'Até 500 operações/mês',
                     '3 carteiras conectadas',
-                    'Relatórios fiscais completos',
+                    'Dashboard completo',
+                    'Relatórios fiscais básicos',
                     'Exportação CSV/PDF',
                     'Suporte por email'
                 ],
@@ -44,51 +27,52 @@
                 id: 'pro',
                 name: 'Pro',
                 description: 'Para traders ativos',
-                priceMonthly: 79,
-                priceYearly: 790,
+                priceMonthly: 699,
+                priceYearly: 6990,
                 popular: true,
                 features: [
                     'Operações ilimitadas',
-                    'Carteiras ilimitadas',
+                    '10 carteiras conectadas',
                     'Relatórios fiscais completos',
+                    'GCAP automático',
+                    'IN 1888 automática',
+                    'DARF automático',
                     'Exportação CSV/PDF/Excel',
-                    'API prioritária',
-                    'Suporte por chat',
-                    'Alertas personalizados'
+                    'Suporte prioritário por chat'
                 ],
                 limitations: []
             },
             {
                 id: 'enterprise',
                 name: 'Enterprise',
-                description: 'Para empresas e escritórios',
-                priceMonthly: null,
-                priceYearly: null,
+                description: 'Para escritórios e grandes investidores',
+                priceMonthly: 1500,
+                priceYearly: 15000,
+                popular: false,
                 features: [
                     'Tudo do plano Pro',
-                    'Multi-usuários',
-                    'API dedicada',
-                    'Gerente de conta',
-                    'SLA garantido',
+                    'Carteiras ilimitadas',
+                    'Multi-usuários (até 10)',
+                    'API de integração',
+                    'Relatórios personalizados',
+                    'Gerente de conta dedicado',
+                    'SLA garantido 99.9%',
                     'Treinamento personalizado'
                 ],
                 limitations: []
             }
         ],
         invoices: [
-            { id: 'INV-2024-001', date: '01/01/2024', amount: 79.00, status: 'paid' },
-            { id: 'INV-2023-012', date: '01/12/2023', amount: 79.00, status: 'paid' },
-            { id: 'INV-2023-011', date: '01/11/2023', amount: 79.00, status: 'paid' },
-            { id: 'INV-2023-010', date: '01/10/2023', amount: 79.00, status: 'paid' }
+            { id: 'INV-2024-001', date: '01/01/2024', amount: 699.00, status: 'paid' },
+            { id: 'INV-2023-012', date: '01/12/2023', amount: 699.00, status: 'paid' },
+            { id: 'INV-2023-011', date: '01/11/2023', amount: 699.00, status: 'paid' },
+            { id: 'INV-2023-010', date: '01/10/2023', amount: 699.00, status: 'paid' }
         ],
         getPrice(plan) {
-            if (plan.priceMonthly === null) return 'Sob consulta';
-            if (plan.priceMonthly === 0) return 'Grátis';
             const price = this.billingCycle === 'monthly' ? plan.priceMonthly : plan.priceYearly;
-            return 'R$ ' + price.toFixed(2).replace('.', ',');
+            return 'R$ ' + price.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         },
         getPeriod(plan) {
-            if (plan.priceMonthly === null || plan.priceMonthly === 0) return '';
             return this.billingCycle === 'monthly' ? '/mês' : '/ano';
         },
         openUpgradeModal(plan) {
@@ -115,7 +99,7 @@
                 <div>
                     <p class="text-sm text-white/80 mb-1">Seu plano atual</p>
                     <h2 class="text-2xl font-bold">Plano Pro</h2>
-                    <p class="text-sm text-white/80 mt-1">Próxima cobrança: 01/02/2024 • R$ 79,00</p>
+                    <p class="text-sm text-white/80 mt-1">Próxima cobrança: 01/02/2024 • R$ 699,00</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button
@@ -179,7 +163,7 @@
         </div>
 
         <!-- Cards de Planos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <template x-for="plan in plans" :key="plan.id">
                 <div
                     :class="plan.id === currentPlan ? 'border-primary-500 ring-2 ring-primary-500' : 'border-gray-200'"
@@ -306,22 +290,8 @@
                         Mudar para <span x-text="selectedPlan?.name"></span>
                     </h3>
                     <p class="text-sm text-gray-500 text-center mb-6">
-                        <template x-if="selectedPlan?.priceMonthly > 0">
-                            <span>
-                                Você será cobrado <strong x-text="getPrice(selectedPlan)"></strong><span x-text="getPeriod(selectedPlan)"></span>.
-                                A alteração entrará em vigor imediatamente.
-                            </span>
-                        </template>
-                        <template x-if="selectedPlan?.priceMonthly === 0">
-                            <span>
-                                Ao mudar para o plano Free, você perderá acesso aos recursos premium no final do período atual.
-                            </span>
-                        </template>
-                        <template x-if="selectedPlan?.priceMonthly === null">
-                            <span>
-                                Nossa equipe entrará em contato para discutir suas necessidades e apresentar uma proposta personalizada.
-                            </span>
-                        </template>
+                        Você será cobrado <strong x-text="getPrice(selectedPlan)"></strong><span x-text="getPeriod(selectedPlan)"></span>.
+                        A alteração entrará em vigor imediatamente.
                     </p>
                     <div class="flex gap-3">
                         <button
@@ -333,7 +303,7 @@
                         <button
                             class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-lg hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                         >
-                            <span x-text="selectedPlan?.priceMonthly === null ? 'Entrar em contato' : 'Confirmar'"></span>
+                            Confirmar
                         </button>
                     </div>
                 </div>

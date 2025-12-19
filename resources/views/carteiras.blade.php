@@ -31,60 +31,65 @@
         }
     </style>
 
-    @php
-        // Dados mock para as carteiras
-        $carteiras = [
-            [
-                'nome' => 'Binance',
-                'tipo' => 'Exchange',
-                'operacoes' => 64,
-                'ultima_sync' => '51 dias atrás',
-                'status' => 'Sincronizado',
-                'status_tempo' => '6 dias atrás',
-                'saldo' => 0.00,
-            ],
-            [
-                'nome' => 'Mercado Bitcoin',
-                'tipo' => 'Exchange',
-                'operacoes' => 128,
-                'ultima_sync' => '2 dias atrás',
-                'status' => 'Sincronizado',
-                'status_tempo' => '2 dias atrás',
-                'saldo' => 15420.50,
-            ],
-            [
-                'nome' => 'MetaMask',
-                'tipo' => 'Wallet',
-                'operacoes' => 23,
-                'ultima_sync' => '15 dias atrás',
-                'status' => 'Pendente',
-                'status_tempo' => '15 dias atrás',
-                'saldo' => 8750.00,
-            ],
-        ];
-
-        $plataformas = [
-            ['nome' => 'Binance', 'tipo' => 'Exchange', 'logo' => 'binance'],
-            ['nome' => 'Coinbase', 'tipo' => 'Exchange', 'logo' => 'coinbase'],
-            ['nome' => 'MetaMask', 'tipo' => 'Wallet', 'logo' => 'metamask'],
-        ];
-    @endphp
-
     <!-- Container principal com Alpine.js para gerenciar modais -->
     <div x-data="{
         modalStep: 0,
         selectedPlatform: null,
+        selectedPlatformSlug: null,
         selectedFilter: 'Todos',
         importType: null,
+        walletName: '',
         openModal() { this.modalStep = 1; },
-        closeModal() { this.modalStep = 0; this.selectedPlatform = null; this.importType = null; },
-        selectPlatform(platform) { this.selectedPlatform = platform; },
+        closeModal() {
+            this.modalStep = 0;
+            this.selectedPlatform = null;
+            this.selectedPlatformSlug = null;
+            this.importType = null;
+            this.walletName = '';
+        },
+        selectPlatform(name, slug) {
+            this.selectedPlatform = name;
+            this.selectedPlatformSlug = slug;
+            this.walletName = name;
+        },
         goToConnect() { if(this.selectedPlatform) this.modalStep = 2; },
-        goToImportAuto() { this.importType = 'auto'; this.modalStep = 3; },
-        goToImportManual() { this.importType = 'manual'; this.modalStep = 4; },
+        goToImportAuto() {
+            this.importType = 'auto';
+            this.modalStep = 3;
+            // Dispara evento para o Livewire
+            $dispatch('set-exchange', { exchange: this.selectedPlatformSlug, name: this.walletName });
+        },
+        goToImportManual() {
+            this.importType = 'manual';
+            this.modalStep = 4;
+            $dispatch('set-exchange-csv', { exchange: this.selectedPlatformSlug, name: this.walletName });
+        },
         goToProcessing() { this.modalStep = 5; },
         goBack() { if(this.modalStep > 1) this.modalStep--; }
-    }">
+    }"
+    @wallet-created.window="closeModal(); window.location.reload();"
+    @api-imported.window="closeModal(); window.location.reload();"
+    @csv-imported.window="closeModal(); window.location.reload();"
+    >
+
+        <!-- Mensagens de feedback -->
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
+                {{ session('info') }}
+            </div>
+        @endif
 
         <!-- Header com botões -->
         <div class="flex items-center justify-end gap-3 mb-4">
@@ -94,9 +99,12 @@
             >
                 Adicionar carteira
             </button>
-            <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-white border border-primary-600 rounded-full hover:bg-primary-50 transition-colors whitespace-nowrap">
-                Sincronizar tudo
-            </button>
+            <form action="{{ route('carteiras.sync-all') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-white border border-primary-600 rounded-full hover:bg-primary-50 transition-colors whitespace-nowrap">
+                    Sincronizar tudo
+                </button>
+            </form>
         </div>
 
         <!-- Card principal -->
@@ -161,28 +169,42 @@
             <div class="overflow-visible" style="min-height: 200px;">
                 <table class="w-full">
                     <tbody>
-                        @forelse($carteiras as $carteira)
+                        @forelse($wallets as $wallet)
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                 <td class="px-6 py-4" style="width: 20%;">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ $carteira['nome'] }}</p>
-                                        <p class="text-xs text-gray-500">{{ $carteira['tipo'] }}</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ $wallet->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $wallet->exchange?->type ?? 'Exchange' }}</p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4" style="width: 25%;">
                                     <div>
-                                        <p class="text-sm text-gray-900">{{ $carteira['operacoes'] }} operações</p>
-                                        <p class="text-xs text-gray-500">{{ $carteira['ultima_sync'] }}</p>
+                                        <p class="text-sm text-gray-900">{{ $wallet->operations_count }} operações</p>
+                                        <p class="text-xs text-gray-500">{{ $wallet->created_at->diffForHumans() }}</p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4" style="width: 25%;">
                                     <div>
-                                        <p class="text-sm text-gray-900">{{ $carteira['status'] }}</p>
-                                        <p class="text-xs text-gray-500">{{ $carteira['status_tempo'] }}</p>
+                                        @if($wallet->status === 'active')
+                                            <p class="text-sm text-green-600">Sincronizado</p>
+                                        @elseif($wallet->status === 'syncing')
+                                            <p class="text-sm text-yellow-600">Sincronizando...</p>
+                                        @elseif($wallet->status === 'error')
+                                            <p class="text-sm text-red-600">Erro</p>
+                                        @else
+                                            <p class="text-sm text-gray-600">Pendente</p>
+                                        @endif
+                                        <p class="text-xs text-gray-500">
+                                            @if($wallet->last_sync_at)
+                                                {{ $wallet->last_sync_at->diffForHumans() }}
+                                            @else
+                                                Nunca sincronizado
+                                            @endif
+                                        </p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4" style="width: 20%;">
-                                    <p class="text-sm text-gray-900">R$ {{ number_format($carteira['saldo'], 2, ',', '.') }}</p>
+                                    <p class="text-sm text-gray-900">R$ {{ number_format($wallet->total_balance_brl ?? 0, 2, ',', '.') }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-right overflow-visible" style="width: 10%;">
                                     <div class="relative inline-block" x-data="{ open: false }">
@@ -200,9 +222,20 @@
                                             x-transition
                                             class="absolute right-full top-0 mr-2 w-36 bg-white rounded-lg shadow-lg z-50 py-1 border border-gray-200"
                                         >
-                                            <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Ver operações</a>
-                                            <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Sincronizar</a>
-                                            <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Excluir carteira</a>
+                                            <a href="{{ route('operacoes') }}?wallet={{ $wallet->id }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Ver operações</a>
+                                            @if($wallet->api_key)
+                                                <form action="{{ route('carteiras.sync', $wallet) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50" {{ $wallet->status === 'syncing' ? 'disabled' : '' }}>
+                                                        Sincronizar
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            <form action="{{ route('carteiras.destroy', $wallet) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta carteira? Todas as operações serão removidas.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50">Excluir carteira</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </td>
@@ -210,8 +243,13 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center">
-                                    <p class="text-gray-500">Nenhuma carteira cadastrada</p>
-                                    <button @click="openModal()" class="text-primary-600 hover:underline text-sm mt-2">Adicionar sua primeira carteira</button>
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                        <p class="text-gray-500 mb-2">Nenhuma carteira cadastrada</p>
+                                        <button @click="openModal()" class="text-primary-600 hover:underline text-sm">Adicionar sua primeira carteira</button>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -220,21 +258,11 @@
             </div>
 
             <!-- Paginação -->
+            @if($wallets->count() > 0)
             <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <span class="text-sm text-gray-500">1-10 de 1</span>
-                <div class="flex items-center gap-1">
-                    <button class="p-1.5 rounded-full border border-gray-200 hover:bg-gray-50 disabled:opacity-50" disabled>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <button class="p-1.5 rounded-full border border-gray-200 hover:bg-gray-50 disabled:opacity-50" disabled>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
+                <span class="text-sm text-gray-500">{{ $wallets->count() }} carteira(s)</span>
             </div>
+            @endif
         </div>
 
         <!-- MODAL 1: Selecione a plataforma -->
@@ -293,17 +321,24 @@
                         </template>
                     </div>
 
-                    <!-- Grid de plataformas com estilo do onboarding -->
-                    <div class="flex justify-center items-center gap-6 py-4">
-                        @foreach($plataformas as $plataforma)
+                    <!-- Grid de plataformas do banco de dados -->
+                    <div class="flex justify-center items-center gap-4 py-4 flex-wrap">
+                        @foreach($exchanges as $exchange)
                             <button
                                 type="button"
-                                @click="selectPlatform('{{ $plataforma['nome'] }}')"
-                                :class="selectedPlatform === '{{ $plataforma['nome'] }}' ? 'selected' : ''"
+                                @click="selectPlatform('{{ $exchange->name }}', '{{ $exchange->slug }}')"
+                                :class="selectedPlatformSlug === '{{ $exchange->slug }}' ? 'selected' : ''"
                                 class="exchange-btn"
+                                x-show="selectedFilter === 'Todos' || selectedFilter === '{{ ucfirst($exchange->type) }}'"
                             >
-                                <img src="{{ asset('assets/images/exchanges/' . $plataforma['logo'] . '.png') }}" alt="{{ $plataforma['nome'] }}">
-                                <span class="text-[10px] text-gray-600 text-center leading-tight mt-1">{{ $plataforma['nome'] }}</span>
+                                @if($exchange->logo_url)
+                                    <img src="{{ asset('assets/images/exchanges/' . $exchange->slug . '.png') }}" alt="{{ $exchange->name }}" onerror="this.onerror=null; this.src='{{ asset('assets/images/exchanges/default.png') }}';">
+                                @else
+                                    <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                        <span class="text-xs font-bold text-gray-500">{{ strtoupper(substr($exchange->name, 0, 2)) }}</span>
+                                    </div>
+                                @endif
+                                <span class="text-[10px] text-gray-600 text-center leading-tight mt-1">{{ $exchange->name }}</span>
                             </button>
                         @endforeach
                     </div>
@@ -361,11 +396,11 @@
                     <!-- Nome da carteira -->
                     <div class="mb-5">
                         <label class="block text-xs font-normal text-gray-500 mb-2">Digite o nome da carteira</label>
-                        <x-ui.input
+                        <input
                             type="text"
-                            name="wallet_name"
+                            x-model="walletName"
                             placeholder="Ex: Minha Binance Principal"
-                            rounded="full"
+                            class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                         />
                     </div>
 
@@ -406,18 +441,11 @@
                     >
                         Voltar
                     </button>
-                    <button
-                        type="button"
-                        @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
-                    >
-                        Continuar
-                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL 3: Importação Automática -->
+        <!-- MODAL 3: Importação Automática (Livewire) -->
         <div
             x-show="modalStep === 3"
             x-cloak
@@ -427,14 +455,14 @@
             <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal()"></div>
 
             <div
-                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 scale-90"
                 x-transition:enter-end="opacity-100 scale-100"
             >
                 <!-- Header -->
                 <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900">Importação Automática</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Importação Automática - <span x-text="selectedPlatform"></span></h2>
                     <button type="button" @click="closeModal()" class="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -442,38 +470,13 @@
                     </button>
                 </div>
 
-                <!-- Body -->
-                <div class="px-6 py-5 space-y-4">
-                    <!-- API Key -->
-                    <x-ui.input
-                        type="text"
-                        name="api_key"
-                        label="API KEY"
-                        placeholder="Digite a chave API"
-                        rounded="lg"
-                    />
-
-                    <!-- API Secret -->
-                    <x-ui.input
-                        type="password"
-                        name="api_secret"
-                        label="API SECRET"
-                        placeholder="Digite a chave secreta"
-                        rounded="lg"
-                    />
-
-                    <!-- Data -->
-                    <x-ui.input
-                        type="date"
-                        name="start_date"
-                        label="Data inicial"
-                        placeholder="Selecione a data"
-                        rounded="lg"
-                    />
+                <!-- Body com Componente Livewire -->
+                <div class="px-6 py-5">
+                    @livewire('wallets.import-a-p-i')
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-4 border-t border-gray-100 flex justify-between">
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-start">
                     <button
                         type="button"
                         @click="goBack()"
@@ -481,18 +484,11 @@
                     >
                         Voltar
                     </button>
-                    <button
-                        type="button"
-                        @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
-                    >
-                        Importar
-                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL 4: Importação Manual -->
+        <!-- MODAL 4: Importação Manual (Livewire) -->
         <div
             x-show="modalStep === 4"
             x-cloak
@@ -502,14 +498,14 @@
             <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal()"></div>
 
             <div
-                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 scale-90"
                 x-transition:enter-end="opacity-100 scale-100"
             >
                 <!-- Header -->
                 <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900">Importação Manual</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">Importação Manual - <span x-text="selectedPlatform"></span></h2>
                     <button type="button" @click="closeModal()" class="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -517,49 +513,19 @@
                     </button>
                 </div>
 
-                <!-- Body -->
-                <div class="px-6 py-5 space-y-4" x-data="{ fileName: '' }">
-                    <!-- Upload de arquivo -->
-                    <div>
-                        <label class="block text-xs font-normal text-gray-500 mb-2">Upload dos arquivos</label>
-                        <div class="relative border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-400 transition-colors bg-gray-50/50">
-                            <input
-                                type="file"
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                accept=".csv,.xlsx,.xls"
-                                @change="fileName = $event.target.files[0]?.name || ''"
-                            />
-                            <div class="flex flex-col items-center gap-3">
-                                <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-700" x-text="fileName || 'Clique para selecionar'"></p>
-                                    <p class="text-xs text-gray-400 mt-1">ou arraste e solte seus arquivos aqui</p>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-3 text-center">Formatos aceitos: CSV, XLS, XLSX</p>
-                    </div>
+                <!-- Body com Componente Livewire -->
+                <div class="px-6 py-5">
+                    @livewire('wallets.import-c-s-v')
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-4 border-t border-gray-100 flex justify-between">
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-start">
                     <button
                         type="button"
                         @click="goBack()"
                         class="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
                     >
                         Voltar
-                    </button>
-                    <button
-                        type="button"
-                        @click="goToProcessing()"
-                        class="px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
-                    >
-                        Importar
                     </button>
                 </div>
             </div>
@@ -595,7 +561,7 @@
                     </p>
                     <button
                         type="button"
-                        @click="closeModal()"
+                        @click="closeModal(); window.location.reload();"
                         class="w-full px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 rounded-full hover:from-primary-700 hover:to-primary-600 transition-all shadow-sm"
                     >
                         Entendi

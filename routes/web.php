@@ -1,118 +1,90 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\TwoFactorAuthController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReportController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// Preview de componentes (apenas para desenvolvimento)
-Route::get('/components-preview', function () {
-    return view('components-preview');
-})->name('components.preview');
-
-// Rotas placeholder (serão implementadas depois)
+// Página inicial redireciona para login
 Route::get('/', function () {
-    return redirect()->route('components.preview');
-})->name('home');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
-Route::get('/portfolio', function () {
-    return redirect()->route('components.preview');
-})->name('portfolio');
-
-Route::get('/carteiras', function () {
-    return view('carteiras');
-})->name('carteiras');
-
-Route::get('/operacoes', function () {
-    return view('operacoes');
-})->name('operacoes');
-
-Route::get('/relatorios', function () {
-    return view('relatorios');
-})->name('relatorios');
-
-Route::get('/declaracoes', function () {
-    return view('declaracoes');
-})->name('declaracoes');
-
-Route::get('/pendencias', function () {
-    return view('pendencias');
-})->name('pendencias');
-
-// Perfil Routes
-Route::get('/perfil', function () {
-    return view('perfil.index');
-})->name('perfil');
-
-Route::get('/perfil/planos', function () {
-    return view('perfil.planos');
-})->name('perfil.planos');
-
-// Auth Routes
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::post('/login', function () {
-    // TODO: Implementar autenticacao
-    return redirect()->route('dashboard');
-})->name('login.post');
-
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
-
-Route::post('/register', function () {
-    // TODO: Implementar cadastro
     return redirect()->route('login');
-})->name('register.post');
-
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-})->name('password.request');
-
-// Social Login placeholder
-Route::get('/login/google', function () {
-    // TODO: Implementar login com Google
-    return redirect()->route('login');
-})->name('login.google');
-
-// Onboarding Routes
-Route::get('/onboarding', function () {
-    return view('onboarding.welcome');
-})->name('onboarding.welcome');
-
-Route::get('/onboarding/select-platform', function () {
-    return view('onboarding.select-platform');
-})->name('onboarding.select-platform');
-
-Route::get('/onboarding/connect/{exchange}', function ($exchange) {
-    return view('onboarding.connect-exchange', ['exchange' => $exchange]);
-})->name('onboarding.connect-exchange');
-
-Route::get('/onboarding/import-automatic/{exchange}', function ($exchange) {
-    return view('onboarding.import-automatic', ['exchange' => $exchange]);
-})->name('onboarding.import-automatic');
-
-Route::get('/onboarding/import-manual/{exchange}', function ($exchange) {
-    return view('onboarding.import-manual', ['exchange' => $exchange]);
-})->name('onboarding.import-manual');
-
-Route::get('/onboarding/processing/{exchange?}', function ($exchange = null) {
-    return view('onboarding.processing', ['exchange' => $exchange]);
-})->name('onboarding.processing');
-
-// Report Routes
-Route::prefix('reports')->name('reports.')->group(function () {
-    Route::get('/darf/{mes}/{ano}', [ReportController::class, 'darf'])->name('darf');
-    Route::get('/mensal/{mes}/{ano}', [ReportController::class, 'relatorioMensal'])->name('mensal');
-    Route::get('/irpf/{ano}', [ReportController::class, 'irpfExport'])->name('irpf');
 });
+
+// Rotas protegidas por autenticação
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Carteiras
+    Route::get('/carteiras', [WalletController::class, 'index'])->name('carteiras');
+    Route::post('/carteiras', [WalletController::class, 'store'])->name('carteiras.store');
+    Route::get('/carteiras/{wallet}', [WalletController::class, 'show'])->name('carteiras.show');
+    Route::post('/carteiras/{wallet}/sync', [WalletController::class, 'sync'])->name('carteiras.sync');
+    Route::delete('/carteiras/{wallet}', [WalletController::class, 'destroy'])->name('carteiras.destroy');
+    Route::post('/carteiras/sync-all', [WalletController::class, 'syncAll'])->name('carteiras.sync-all');
+
+    // Operações
+    Route::get('/operacoes', [App\Http\Controllers\OperationController::class, 'index'])->name('operacoes');
+    Route::get('/api/operacoes', [App\Http\Controllers\OperationController::class, 'apiList'])->name('operacoes.api');
+
+    // Declarações
+    Route::get('/declaracoes', function () {
+        return view('declaracoes');
+    })->name('declaracoes');
+
+    // Relatórios
+    Route::get('/relatorios', function () {
+        return view('relatorios');
+    })->name('relatorios');
+
+    // Pendências
+    Route::get('/pendencias', function () {
+        return view('pendencias');
+    })->name('pendencias');
+
+    // Perfil - Rotas com Controllers
+    Route::prefix('perfil')->name('perfil.')->group(function () {
+        Route::get('/', [PerfilController::class, 'index'])->name('index');
+        Route::get('/dados-pessoais', [PerfilController::class, 'dadosPessoais'])->name('dados-pessoais');
+        Route::put('/dados-pessoais', [PerfilController::class, 'updatePersonalData'])->name('update-dados');
+        Route::put('/senha', [PerfilController::class, 'updatePassword'])->name('update-senha');
+        Route::get('/seguranca', [PerfilController::class, 'seguranca'])->name('seguranca');
+        Route::get('/notificacoes', [PerfilController::class, 'notificacoes'])->name('notificacoes');
+        Route::put('/notificacoes', [PerfilController::class, 'updateNotifications'])->name('update-notificacoes');
+        Route::get('/planos', [PerfilController::class, 'planos'])->name('planos');
+        Route::get('/sessoes', [PerfilController::class, 'sessoes'])->name('sessoes');
+    });
+
+    // Rota legada para compatibilidade
+    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
+
+    // Sessões - Gerenciamento de dispositivos
+    Route::delete('/sessoes/{id}', [SessionController::class, 'destroy'])->name('sessoes.destroy');
+    Route::delete('/sessoes', [SessionController::class, 'destroyAll'])->name('sessoes.destroy-all');
+
+    // Profile (Breeze) - mantido para compatibilidade
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Onboarding
+    Route::get('/onboarding', function () {
+        return view('onboarding.welcome');
+    })->name('onboarding');
+
+    // 2FA
+    Route::get('/two-factor', [TwoFactorAuthController::class, 'show'])->name('two-factor.show');
+    Route::post('/two-factor/enable', [TwoFactorAuthController::class, 'enable'])->name('two-factor.enable');
+    Route::post('/two-factor/disable', [TwoFactorAuthController::class, 'disable'])->name('two-factor.disable');
+});
+
+// 2FA Challenge (sem middleware auth completo)
+Route::middleware('guest')->group(function () {
+    Route::get('/two-factor/challenge', [TwoFactorAuthController::class, 'challenge'])->name('two-factor.challenge');
+    Route::post('/two-factor/verify', [TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
+});
+
+require __DIR__.'/auth.php';

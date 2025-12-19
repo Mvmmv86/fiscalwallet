@@ -60,18 +60,15 @@
     </style>
 </head>
 <body class="font-sans antialiased bg-[#F5F2F8]">
-    <div class="min-h-screen flex items-center justify-center">
-        <!-- Container com tamanho máximo do Figma -->
-        <div class="w-full max-w-[1440px] max-h-screen flex flex-row shadow-lg">
-            <!-- Left Panel - Banner Background (68%) -->
-            <div class="min-h-screen" style="width: 68%; background-image: url('{{ asset('assets/images/' . $banner) }}'); background-size: cover; background-position: center;">
-            </div>
+    <div class="min-h-screen flex">
+        <!-- Left Panel - Banner Background (68%) -->
+        <div class="hidden lg:block lg:w-[68%] min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('assets/images/' . $banner) }}');">
+        </div>
 
-            <!-- Right Panel - Form (32%) -->
-            <div class="min-h-screen bg-[#F5F2F8] flex items-center justify-center" style="width: 32%;">
-                <div class="page-transition" style="width: 350px;">
-                    {{ $slot }}
-                </div>
+        <!-- Right Panel - Form (32%) -->
+        <div class="w-full lg:w-[32%] min-h-screen bg-[#F5F2F8] flex items-center justify-center">
+            <div class="page-transition w-full max-w-[350px] px-6 lg:px-0">
+                {{ $slot }}
             </div>
         </div>
     </div>
